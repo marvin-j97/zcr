@@ -1,0 +1,24 @@
+[package]
+name = "zcr"
+version = "0.0.1"
+edition = "2024"
+rust-version = "1.87"
+
+[dependencies]
+byteorder = { version = "0.1.0", package = "byteorder-lite" }
+byteview = "0.10.2"
+
+[dev-dependencies]
+criterion = "0.8.2"
+rand = "0.10.2"
+test-log = "0.2.19"
+
+[[bench]]
+name = "read"
+harness = false
+path = "benches/read.rs"
+
+[[bench]]
+name = "mutate"
+harness = false
+path = "benches/mutate.rs"
