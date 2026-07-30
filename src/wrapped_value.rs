@@ -5,7 +5,7 @@ use crate::{
 };
 use std::collections::BTreeMap;
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum WrappedValue {
     U8(u8),
     U16(u16),
@@ -30,6 +30,8 @@ pub enum WrappedValue {
     List(Vec<WrappedValue>),
     Map(BTreeMap<RecordKey, WrappedValue>),
 }
+
+impl Eq for WrappedValue {}
 
 impl WrappedValue {
     pub fn write_into(&self, buf: &mut Vec<u8>) {

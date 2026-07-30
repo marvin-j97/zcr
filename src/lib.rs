@@ -65,6 +65,12 @@ pub use record::{BorrowedRecord, OwnedRecord};
 #[doc(hidden)]
 pub use wrapped_value::WrappedValue;
 
+#[doc(hidden)]
+pub use record::builder::RecordKey;
+
+#[doc(hidden)]
+pub use value_tag::ValueTag;
+
 #[macro_export]
 macro_rules! record {
     (
