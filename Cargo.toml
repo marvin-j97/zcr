@@ -1,6 +1,6 @@
 [package]
 name = "zcr"
-version = "0.0.1"
+version = "0.0.2"
 description = "Zero-copy record type"
 edition = "2024"
 rust-version = "1.87"
