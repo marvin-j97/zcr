@@ -1,4 +1,4 @@
-use crate::{ValueTag, borrowed_value::BorrowedValue};
+use crate::{borrowed_value::BorrowedValue, value_tag::ValueTag};
 use byteorder::{BE, WriteBytesExt};
 
 pub type ValueOffset = u32;

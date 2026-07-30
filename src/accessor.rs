@@ -1,4 +1,4 @@
-use crate::{BorrowedRecord, ValueTag, list::BorrowedList};
+use crate::{BorrowedRecord, list::BorrowedList, value_tag::ValueTag};
 use byteorder::{BE, ReadBytesExt};
 
 /// Allows reading a value from a record or list

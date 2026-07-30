@@ -1,4 +1,6 @@
-use crate::{ListBuilder, ValueTag, borrowed_value::BorrowedValue, record::builder::RecordKey};
+use crate::{
+    ListBuilder, borrowed_value::BorrowedValue, record::builder::RecordKey, value_tag::ValueTag,
+};
 
 /// Streaming record builder, which requires sorted insertion of key-value pairs,
 /// but only keys need to be buffered in memory

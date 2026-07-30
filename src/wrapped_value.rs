@@ -1,7 +1,7 @@
 use crate::{
-    ValueTag,
     list::ListBuilder,
     record::{builder::RecordKey, streaming::StreamingRecordBuilder},
+    value_tag::ValueTag,
 };
 use std::collections::BTreeMap;
 

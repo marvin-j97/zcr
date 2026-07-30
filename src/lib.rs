@@ -44,7 +44,7 @@
 // Strings are simply stored character-by-character.
 // The string length can be derived from the slice length.
 //
-// e.g. String("Hello") = [b"H", b"e", b"l", b"l", b"o", 0x15]
+// e.g. String("Hello") = [b"H", b"e", b"l", b"l", b"o", 0xF]
 //
 // Lists are suffixed by their length and an item slot array.
 //
@@ -54,6 +54,7 @@ mod accessor;
 mod borrowed_value;
 mod list;
 mod record;
+mod value_tag;
 mod wrapped_value;
 
 pub use accessor::ValueAccessor;
@@ -75,49 +76,10 @@ macro_rules! record {
     };
 }
 
-/// Value types that can be stored in records and lists
-#[repr(u8)]
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum ValueTag {
-    Null = 0,
-
-    U8 = 1,
-    U16 = 2,
-    U32 = 3,
-    U64 = 4,
-    U128 = 5,
-
-    I8 = 6,
-    I16 = 7,
-    I32 = 8,
-    I64 = 9,
-    I128 = 10,
-
-    F32 = 11,
-    F64 = 12,
-
-    Boolean = 13,
-
-    Bytes = 14,
-    String = 15,
-
-    List = 16,
-    Record = 17,
-    //
-    // #[cfg(feature = "uuid")]
-    // Uuid = 16,
-
-    // #[cfg(feature = "date")]
-    // Date = 17,
-    // #[cfg(feature = "date")]
-    // Timestamp = 18,
-    // #[cfg(feature = "date")]
-    // Datetime = 19,
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::value_tag::ValueTag;
     use std::collections::BTreeMap;
     use test_log::test;
 

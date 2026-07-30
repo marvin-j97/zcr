@@ -15,7 +15,7 @@ pub type RecordKey = ByteView;
 //                               ,__________________
 //                ---------------------            |
 //               v               v     |           |
-// Objt: [field1][field2][field3][ptr1][ptr2][ptr3][table_start][len][list tag][key1][key2][key3][keyptr1][keyptr2][keyptr3][keys_start][keyptrstart][tag]
+//  Rec: [field1][field2][field3][ptr1][ptr2][ptr3][table_start][len][list tag][key1][key2][key3][keyptr1][keyptr2][keyptr3][keys_start][keyptrstart][tag]
 //       ^               ^       |           |
 //       -----------------------´            |
 //                       `------------------´

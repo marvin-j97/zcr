@@ -1,4 +1,6 @@
-use crate::{ValueTag, WrappedValue, list::ListBuilder, record::streaming::StreamingRecordBuilder};
+use crate::{
+    WrappedValue, list::ListBuilder, record::streaming::StreamingRecordBuilder, value_tag::ValueTag,
+};
 use std::collections::BTreeMap;
 
 #[derive(Clone)]
