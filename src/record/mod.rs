@@ -8,9 +8,9 @@ use crate::{
 };
 use byteorder::{BE, ReadBytesExt};
 use byteview::ByteView;
-use mutator::Mutator;
 
 pub use builder::RecordBuilder;
+pub use mutator::Mutator;
 
 const KEY_SLOT_SIZE: usize = std::mem::size_of::<u32>();
 

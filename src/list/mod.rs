@@ -1,14 +1,12 @@
 mod builder;
 mod mutator;
 
-use crate::{
-    ValueAccessor,
-    list::{builder::ValueOffset, mutator::Mutator},
-};
+use crate::{ValueAccessor, list::builder::ValueOffset};
 use byteorder::{BE, ReadBytesExt};
 use byteview::ByteView;
 
 pub use builder::ListBuilder;
+pub use mutator::Mutator;
 
 /// A zero-copy array which owns its byte buffer
 #[derive(Clone, PartialEq, Eq)]

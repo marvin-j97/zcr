@@ -57,9 +57,8 @@ mod value_tag;
 mod wrapped_value;
 
 pub use accessor::ValueAccessor;
-pub use list::{BorrowedList, ListBuilder, OwnedList};
-pub use record::RecordBuilder;
-pub use record::{BorrowedRecord, OwnedRecord};
+pub use list::{BorrowedList, ListBuilder, Mutator as ListMutator, OwnedList};
+pub use record::{BorrowedRecord, Mutator as RecordMutator, OwnedRecord, RecordBuilder};
 
 #[doc(hidden)]
 pub use wrapped_value::WrappedValue;
