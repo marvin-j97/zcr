@@ -3,7 +3,7 @@
 //! # Example
 //!
 //! ```
-//! use zcr::{BorrowedRecord, record, RecordBuilder};
+//! use zcr::{record, RecordBuilder};
 //!
 //! let r = record! {
 //!     "name" => "Alice",
@@ -27,9 +27,8 @@
 //! );
 //!
 //! // Load from bytes (e..g a file):
-//! //
 //! # let bytes = &[] as &[u8];
-//! let record = BorrowedRecord::from_slice(bytes);
+//! let record = zcr::BorrowedRecord::from_slice(bytes);
 //! ```
 
 // ## Actual format
