@@ -1,10 +1,12 @@
-//! (Z)ero (C)opy (R)ecord
+//! Zero-copy, immutable records
 //!
 //! # Example
 //!
 //! ```
 //! use zcr::{record, RecordBuilder};
 //!
+//! // Use RecordBuilder or the more ergonomic
+//! // "record!" macro to built a record
 //! let r = record! {
 //!     "name" => "Alice",
 //!     "age" => 25u8,
@@ -30,35 +32,44 @@
 //! # let bytes = &[] as &[u8];
 //! let record = zcr::BorrowedRecord::from_slice(bytes);
 //! ```
-
-// ## Actual format
-//
-// 0              n-1
-// [...content...][tag]
-//
-// Integers are serialized in big-endian format:
-//
-// e.g. U32(4) = [0x0, 0x0, 0x0, 0x4, 0x3]
-//
-// Strings are simply stored character-by-character.
-// The string length can be derived from the slice length.
-//
-// e.g. String("Hello") = [b"H", b"e", b"l", b"l", b"o", 0xF]
-//
-// Lists are suffixed by their length and an item slot array.
-//
-// Maps are lists plus an array of keys and key slots.
+//!
+//! # Design
+//!
+//! Each value has a value type, which is a single-byte tag, and always stored as the last byte of the value's serialized representation.
+//! The rest of the value is the value itself, serialized depending on its value type. d
+//!
+//! 0              n-1
+//! [...content...][tag]
+//!
+//! Integers are serialized in big-endian format:
+//!
+//! e.g. U32(4) = [0x0, 0x0, 0x0, 0x4, 0x3]
+//!
+//! Strings are simply stored character-by-character.
+//! The string length can be derived from the slice length:
+//!
+//! e.g. String("Hello") = [b"H", b"e", b"l", b"l", b"o", 0xF]
+//!
+//! There are two types of containers:
+//!
+//! - `Records`, sorted key-value maps, similar to `BTreeMap`; keys are arbitrary byte arrays
+//! - `Lists`, fixed-size sequences of values
+//!
+//! `Lists` are essentially slotted pages, while records are composed of a `List` plus a slotted page for its keys.
+//! Keys are always sorted, which allows binary searching any key, but also sorted traversal like a B-tree.
 
 mod accessor;
 mod borrowed_value;
 mod list;
 mod record;
+mod sorted_set;
 mod value_tag;
 mod wrapped_value;
 
 pub use accessor::ValueAccessor;
 pub use list::{BorrowedList, ListBuilder, Mutator as ListMutator, OwnedList};
 pub use record::{BorrowedRecord, Mutator as RecordMutator, OwnedRecord, RecordBuilder};
+pub use sorted_set::{BorrowedSortedSet, OwnedSortedSet, SortedSetBuilder};
 
 #[doc(hidden)]
 pub use wrapped_value::WrappedValue;
