@@ -30,6 +30,10 @@ impl<'a> Mutator<'a> {
         self.state.remove(idx);
     }
 
+    pub fn clear(&mut self) {
+        self.state.clear();
+    }
+
     pub fn finish(self) -> OwnedList {
         let mut v = vec![];
         let mut builder = ListBuilder::new(&mut v);

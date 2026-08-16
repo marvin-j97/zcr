@@ -46,6 +46,14 @@ impl OwnedList {
         self.as_borrowed().get(idx)
     }
 
+    #[doc(hidden)]
+    pub fn binary_search_by<F: Fn(&ValueAccessor<'_>) -> std::cmp::Ordering>(
+        &self,
+        f: F,
+    ) -> Result<usize, usize> {
+        self.as_borrowed().binary_search_by(f)
+    }
+
     pub fn iter(&self) -> impl Iterator<Item = ValueAccessor<'_>> {
         (0..self.len()).map(|idx| self.get(idx)).flatten()
     }
@@ -109,13 +117,13 @@ impl<'a> BorrowedList<'a> {
 
     /// Returns the number of list items.
     pub fn len(&self) -> usize {
-        let offset =
+        const OFFSET: usize =
             // Tag
             std::mem::size_of::<u8>()
             // Len field
             + std::mem::size_of::<u32>();
 
-        let start = self.0.len() - offset;
+        let start = self.0.len() - OFFSET;
 
         (&self.0[start..])
             .read_u32::<BE>()
@@ -125,7 +133,7 @@ impl<'a> BorrowedList<'a> {
     }
 
     fn slot_array_offset(&self) -> usize {
-        let offset =
+        const OFFSET: usize =
             // Tag
             std::mem::size_of::<u8>()
             // Len field
@@ -133,7 +141,7 @@ impl<'a> BorrowedList<'a> {
             // Offset field
             + std::mem::size_of::<ValueOffset>();
 
-        let start = self.0.len() - offset;
+        let start = self.0.len() - OFFSET;
 
         usize::try_from((&self.0[start..]).read_u32::<BE>().unwrap()).unwrap()
     }
@@ -177,6 +185,45 @@ impl<'a> BorrowedList<'a> {
         self.extract_field_slice(idx).map(ValueAccessor::new)
     }
 
+    #[doc(hidden)]
+    pub fn binary_search_by<F: Fn(&ValueAccessor<'a>) -> std::cmp::Ordering>(
+        &self,
+        f: F,
+    ) -> Result<usize, usize> {
+        if self.len() == 0 {
+            return Err(0);
+        }
+
+        let left = 0;
+        let right = self.len() - 1;
+
+        // Binary search
+        let mut left = left;
+        let mut right = right;
+
+        while left <= right {
+            let mid = left + (right - left) / 2;
+            let mid_value = self.get(mid).unwrap();
+
+            match f(&mid_value) {
+                std::cmp::Ordering::Less => {
+                    left = mid + 1;
+                }
+                std::cmp::Ordering::Greater => {
+                    if mid == 0 {
+                        break;
+                    }
+                    right = mid - 1;
+                }
+                std::cmp::Ordering::Equal => {
+                    return Ok(mid);
+                }
+            }
+        }
+
+        Err(left)
+    }
+
     pub fn iter(&self) -> impl Iterator<Item = ValueAccessor<'a>> {
         (0..self.len()).map(|idx| self.get(idx)).flatten()
     }
@@ -210,6 +257,121 @@ impl<'a> BorrowedList<'a> {
 mod tests {
     use crate::{ListBuilder, list::BorrowedList};
     use test_log::test;
+
+    /*#[test]
+    fn list_vs_record_size() {
+        let list = {
+            let mut buf = vec![];
+            let mut builder = ListBuilder::new(&mut buf);
+            builder.push("hello world");
+            builder.push("something");
+            builder.push("else here");
+            builder.push("another thing");
+            builder.push("and another");
+            builder.finish();
+            buf
+        };
+        let list = BorrowedList::from_slice(&list);
+
+        let record = {
+            let mut builder = crate::RecordBuilder::default();
+            builder = builder.prop("hello world", true);
+            builder = builder.prop("something", true);
+            builder = builder.prop("else here", true);
+            builder = builder.prop("another thing", true);
+            builder = builder.prop("and another", true);
+            builder.finish()
+        };
+
+        eprintln!("  list size: {}", list.0.len());
+        eprintln!("record size: {}", record.0.len());
+
+        panic!();
+    }*/
+
+    #[test]
+    fn list_binary_search_100() {
+        let item_count = 100;
+
+        let mut keys = (0..item_count)
+            .map(|x| format!("hello world {x}"))
+            .collect::<Vec<_>>();
+
+        // Make sure to be lexicographically sorted
+        keys.sort();
+
+        let mut buf = vec![];
+        {
+            let mut builder = ListBuilder::new(&mut buf);
+
+            for k in keys {
+                builder.push(&*k);
+            }
+
+            builder.finish()
+        };
+        let list = BorrowedList::from_slice(&buf);
+
+        for x in 0..item_count {
+            let key = format!("hello world {x}");
+
+            assert!(
+                list.get(
+                    list.binary_search_by(|v| {
+                        let v = unsafe { v.as_str_unchecked().unwrap() };
+                        v.cmp(&key)
+                    })
+                    .unwrap(),
+                )
+                .is_some()
+            );
+        }
+    }
+
+    #[test]
+    fn list_binary_search() {
+        let mut buf = vec![];
+
+        let mut builder = ListBuilder::new(&mut buf);
+        builder.push(1u64);
+        builder.push(2u64);
+        builder.push(3u64);
+        builder.push(4u64);
+        builder.push(5u64);
+        builder.finish();
+
+        let list = BorrowedList(&buf);
+        assert_eq!(5, list.len());
+
+        assert_eq!(Some(1), list.first().and_then(|x| x.as_u64()));
+        assert_eq!(Some(5), list.last().and_then(|x| x.as_u64()));
+
+        assert_eq!(
+            Ok(0),
+            list.binary_search_by(|x| x.as_u64().unwrap().cmp(&1)),
+        );
+        assert_eq!(
+            Ok(1),
+            list.binary_search_by(|x| x.as_u64().unwrap().cmp(&2)),
+        );
+        assert_eq!(
+            Ok(2),
+            list.binary_search_by(|x| x.as_u64().unwrap().cmp(&3)),
+        );
+        assert_eq!(
+            Ok(3),
+            list.binary_search_by(|x| x.as_u64().unwrap().cmp(&4)),
+        );
+        assert_eq!(
+            Ok(4),
+            list.binary_search_by(|x| x.as_u64().unwrap().cmp(&5)),
+        );
+
+        assert!(matches!(
+            list.binary_search_by(|x| x.as_u64().unwrap().cmp(&9)),
+            Err(_),
+        ));
+    }
 
     #[test]
     fn list_simple() {
