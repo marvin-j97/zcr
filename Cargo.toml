@@ -25,3 +25,8 @@ path = "benches/read.rs"
 name = "mutate"
 harness = false
 path = "benches/mutate.rs"
+
+[[bench]]
+name = "binary_search"
+harness = false
+path = "benches/binary_search.rs"
