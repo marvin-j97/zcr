@@ -83,6 +83,10 @@ impl<'a> Mutator<'a> {
         self.state.remove(key);
     }
 
+    pub fn clear(&mut self) {
+        self.state.clear();
+    }
+
     pub fn finish(self) -> OwnedRecord {
         let mut v = vec![];
         let mut builder = StreamingRecordBuilder::new(&mut v);
@@ -122,13 +126,6 @@ mod tests {
     use test_log::test;
 
     #[test]
-    fn record_mutate_identity_smoke_test() {
-        let rec = RecordBuilder::default().prop("a", 1u8).finish();
-        let new_rec = rec.as_borrowed().mutate(|_| {});
-        assert_eq!(rec, new_rec)
-    }
-
-    #[test]
     fn record_mutate_identity() {
         let rec = RecordBuilder::default()
             .prop("a", 1u8)
@@ -138,7 +135,6 @@ mod tests {
             .finish();
 
         let new_rec = rec.as_borrowed().mutate(|_| {});
-
         assert_eq!(rec, new_rec)
     }
 
