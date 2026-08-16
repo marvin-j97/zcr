@@ -6,4 +6,4 @@
 
 # zcr
 
-(Z)ero (C)opy (R)ecord
+Zero-copy, immutable records.
