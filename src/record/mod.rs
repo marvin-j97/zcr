@@ -93,9 +93,9 @@ impl<'a> BorrowedRecord<'a> {
 
     /// Returns an iterator over all fields.
     pub fn iter(&self) -> impl Iterator<Item = (&[u8], ValueAccessor<'_>)> {
-        self.keys().map(|key| {
-            let v = self.get(key).unwrap();
-            (key, v)
+        self.keys().map(|k| {
+            let v = self.get(k).unwrap();
+            (k, v)
         })
     }
 
