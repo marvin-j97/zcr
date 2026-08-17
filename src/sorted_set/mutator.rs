@@ -113,7 +113,6 @@ mod tests {
         let new_rec = rec.as_borrowed().mutate(|m| {
             m.remove(b"abc");
         });
-
         assert!(!new_rec.has(b"abc"));
         assert!(new_rec.has(b"hello"));
     }
@@ -128,7 +127,6 @@ mod tests {
         let new_rec = rec.as_borrowed().mutate(|m| {
             m.insert("c");
         });
-
         assert!(new_rec.has(b"abc"));
         assert!(new_rec.has(b"hello"));
         assert!(new_rec.has(b"c"));

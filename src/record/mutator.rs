@@ -151,7 +151,6 @@ mod tests {
             m.remove(b"b");
             m.remove(b"is_true");
         });
-
         assert!(new_rec.has(b"a"));
         assert!(!new_rec.has(b"b"));
         assert!(!new_rec.has(b"is_true"));
@@ -170,7 +169,6 @@ mod tests {
         let new_rec = rec.as_borrowed().mutate(|m| {
             m.insert("c", *b"test");
         });
-
         assert!(new_rec.has(b"a"));
         assert!(new_rec.has(b"b"));
         assert!(new_rec.has(b"c"));

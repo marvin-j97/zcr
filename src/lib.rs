@@ -1,4 +1,4 @@
-//! Zero-copy, immutable records
+//! Zero-copy, copy-on-write data structures for disk-based workloads
 //!
 //! # Example
 //!
@@ -69,7 +69,9 @@ mod wrapped_value;
 pub use accessor::ValueAccessor;
 pub use list::{BorrowedList, ListBuilder, Mutator as ListMutator, OwnedList};
 pub use record::{BorrowedRecord, Mutator as RecordMutator, OwnedRecord, RecordBuilder};
-pub use sorted_set::{BorrowedSortedSet, OwnedSortedSet, SortedSetBuilder};
+pub use sorted_set::{
+    BorrowedSortedSet, Mutator as SortedSetMutator, OwnedSortedSet, SortedSetBuilder,
+};
 
 #[doc(hidden)]
 pub use wrapped_value::WrappedValue;

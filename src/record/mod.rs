@@ -74,6 +74,7 @@ impl<'a> BorrowedRecord<'a> {
             .and_then(|idx| self.as_values().get(idx))
     }
 
+    // TODO: rename contains_key()
     /// Returns `true` if the field exists.
     pub fn has(&self, key: &[u8]) -> bool {
         self.search_by(|h| h.cmp(key)).is_ok()

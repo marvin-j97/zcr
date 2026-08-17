@@ -6,4 +6,4 @@
 
 # zcr
 
-Zero-copy, immutable records.
+Zero-copy, copy-on-write data structures for disk-based workloads.

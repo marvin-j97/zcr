@@ -22,6 +22,14 @@ impl<'a> Mutator<'a> {
         Self { state }
     }
 
+    pub fn insert(&mut self, idx: usize, value: impl Into<WrappedValue>) {
+        self.state.insert(idx, Node::Value(value.into()));
+    }
+
+    pub fn pop(&mut self) {
+        self.state.pop();
+    }
+
     pub fn push(&mut self, value: impl Into<WrappedValue>) {
         self.state.push(Node::Value(value.into()));
     }
@@ -73,7 +81,6 @@ mod tests {
         };
 
         let newl = l.mutate(|_| {});
-
         assert_eq!(l, newl.as_borrowed());
     }
 
@@ -92,8 +99,50 @@ mod tests {
         };
 
         let newl = l.mutate(|_| {});
-
         assert_eq!(l, newl.as_borrowed())
+    }
+
+    #[test]
+    fn list_mutate_pop() {
+        let mut v = vec![];
+
+        let l = {
+            let mut builder = ListBuilder::new(&mut v);
+            builder.push(1u8);
+            builder.push("hello");
+            builder.push(true);
+            builder.push([1, 2, 3, 4, 5]);
+            builder.finish();
+            BorrowedList::from_slice(&v)
+        };
+        assert!(matches!(l.last().and_then(|x| x.as_list()), Some(_)));
+
+        let newl = l.mutate(|m: &mut Mutator<'_>| {
+            m.pop();
+        });
+        assert_eq!(Some(true), newl.last().and_then(|x| x.as_bool()));
+    }
+
+    #[test]
+    fn list_mutate_insert() {
+        let mut v = vec![];
+
+        let l = {
+            let mut builder = ListBuilder::new(&mut v);
+            builder.push(1u8);
+            builder.push("hello");
+            builder.push(true);
+            builder.push([1, 2, 3, 4, 5]);
+            builder.finish();
+            BorrowedList::from_slice(&v)
+        };
+        assert_eq!(Some("hello"), l.get(1).and_then(|x| x.as_str()));
+
+        let newl = l.mutate(|m: &mut Mutator<'_>| {
+            m.insert(1, "hello two");
+        });
+        assert_eq!(Some("hello two"), newl.get(1).and_then(|x| x.as_str()));
+        assert_eq!(Some("hello"), newl.get(2).and_then(|x| x.as_str()));
     }
 
     #[test]
@@ -113,7 +162,6 @@ mod tests {
         let newl = l.mutate(|m: &mut Mutator<'_>| {
             m.push("x");
         });
-
         assert_eq!(Some("x"), newl.last().and_then(|x| x.as_str()));
     }
 
@@ -134,7 +182,6 @@ mod tests {
         let newl = l.mutate(|m: &mut Mutator<'_>| {
             m.remove(0);
         });
-
         assert_eq!(Some("hello"), newl.first().and_then(|x| x.as_str()));
     }
 }

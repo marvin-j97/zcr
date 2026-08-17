@@ -1,9 +1,10 @@
 mod builder;
 mod mutator;
 
-use crate::{BorrowedList, OwnedList, ValueAccessor, sorted_set::mutator::Mutator};
+use crate::{BorrowedList, OwnedList, ValueAccessor};
 
 pub use builder::SortedSetBuilder;
+pub use mutator::Mutator;
 
 /// A zero-copy, sorted byte set borrowing a byte slice
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -32,9 +33,12 @@ impl<'a> BorrowedSortedSet<'a> {
         self.inner.iter()
     }
 
-    pub fn has<'b>(&self, key: &[u8]) -> bool {
+    // TODO: rename contains()
+    pub fn has<'b>(&self, k: impl AsRef<[u8]>) -> bool {
+        let k = k.as_ref();
+
         self.inner
-            .binary_search_by(|v| v.as_bytes().expect("should be bytes").cmp(key))
+            .binary_search_by(|v| v.as_bytes().expect("should be bytes").cmp(k))
             .is_ok()
     }
 

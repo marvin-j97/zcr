@@ -258,37 +258,6 @@ mod tests {
     use crate::{ListBuilder, list::BorrowedList};
     use test_log::test;
 
-    /*#[test]
-    fn list_vs_record_size() {
-        let list = {
-            let mut buf = vec![];
-            let mut builder = ListBuilder::new(&mut buf);
-            builder.push("hello world");
-            builder.push("something");
-            builder.push("else here");
-            builder.push("another thing");
-            builder.push("and another");
-            builder.finish();
-            buf
-        };
-        let list = BorrowedList::from_slice(&list);
-
-        let record = {
-            let mut builder = crate::RecordBuilder::default();
-            builder = builder.prop("hello world", true);
-            builder = builder.prop("something", true);
-            builder = builder.prop("else here", true);
-            builder = builder.prop("another thing", true);
-            builder = builder.prop("and another", true);
-            builder.finish()
-        };
-
-        eprintln!("  list size: {}", list.0.len());
-        eprintln!("record size: {}", record.0.len());
-
-        panic!();
-    }*/
-
     #[test]
     fn list_binary_search_100() {
         let item_count = 100;
