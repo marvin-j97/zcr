@@ -173,8 +173,34 @@ fn assert_value_eq(expected: &WrappedValue, actual: ValueAccessor<'_>) {
 }
 
 #[derive(Debug, Arbitrary)]
+enum Mutation {
+    Insert(String, FuzzValue),
+    Remove(String),
+    Clear,
+}
+
+#[derive(Debug, Arbitrary)]
 struct Input {
     entries: Vec<(String, FuzzValue)>,
+    mutations: Vec<Mutation>,
+}
+
+fn assert_record_eq(expected: &BTreeMap<RecordKey, WrappedValue>, actual: zcr::BorrowedRecord<'_>) {
+    assert_eq!(
+        expected.len(),
+        actual.len(),
+        "record length mismatch: expected={}, actual={}",
+        expected.len(),
+        actual.len(),
+    );
+
+    for (key, expected_value) in expected {
+        let actual_value = actual
+            .get(key)
+            .unwrap_or_else(|| panic!("missing key {:?}", key));
+
+        assert_value_eq(expected_value, actual_value);
+    }
 }
 
 fn main() {
@@ -190,18 +216,44 @@ fn main() {
             builder = builder.prop(k.deref(), value);
         }
 
-        let record = builder.finish();
+        let mut record = builder.finish();
 
         //eprintln!("{expected:#?}");
         //eprintln!("{record:#?}");
 
-        assert_eq!(expected.len(), record.len());
+        assert_record_eq(&expected, record.as_borrowed());
 
-        for (k, _) in &input.entries {
-            //eprintln!("key={k:?}");
-            let expected = expected.get(k.as_bytes()).unwrap();
-            let actual = record.get(k.as_bytes()).unwrap();
-            assert_value_eq(&expected.clone().into(), actual);
+        for mutation in input.mutations.iter() {
+            match mutation {
+                Mutation::Insert(k, v) => {
+                    let key = RecordKey::from(k.clone());
+                    let value: WrappedValue = v.clone().into();
+
+                    expected.insert(key, value.clone());
+
+                    record = record.as_borrowed().mutate(|m| {
+                        m.insert(k.clone(), value);
+                    });
+                }
+
+                Mutation::Remove(k) => {
+                    expected.remove(k.as_bytes());
+
+                    record = record.as_borrowed().mutate(|m| {
+                        m.remove(k.as_bytes());
+                    });
+                }
+
+                Mutation::Clear => {
+                    expected.clear();
+
+                    record = record.as_borrowed().mutate(|m| {
+                        m.clear();
+                    });
+                }
+            }
+
+            assert_record_eq(&expected, record.as_borrowed());
         }
     });
 }
