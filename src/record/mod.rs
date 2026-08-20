@@ -41,6 +41,11 @@ impl<'a> BorrowedRecord<'a> {
         Self(bytes)
     }
 
+    /// Returns the raw serialized representation.
+    pub fn as_bytes(&self) -> &[u8] {
+        self.0
+    }
+
     /// Creates an owned clone of this record.
     pub fn to_owned(&self) -> OwnedRecord {
         OwnedRecord(ByteView::from(self.0))

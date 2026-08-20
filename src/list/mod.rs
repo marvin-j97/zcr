@@ -115,6 +115,11 @@ impl<'a> BorrowedList<'a> {
         OwnedList(ByteView::from(self.0))
     }
 
+    /// Returns the raw serialized representation.
+    pub fn as_bytes(&self) -> &[u8] {
+        self.0
+    }
+
     /// Returns the number of list items.
     pub fn len(&self) -> usize {
         const OFFSET: usize =

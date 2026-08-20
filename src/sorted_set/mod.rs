@@ -19,6 +19,11 @@ impl<'a> BorrowedSortedSet<'a> {
         }
     }
 
+    /// Returns the raw serialized representation.
+    pub fn as_bytes(&self) -> &[u8] {
+        self.inner.as_bytes()
+    }
+
     pub fn mutate(&'a self, f: impl FnOnce(&mut Mutator<'a>) -> ()) -> OwnedSortedSet {
         let mut m = Mutator::new(self);
         f(&mut m);
